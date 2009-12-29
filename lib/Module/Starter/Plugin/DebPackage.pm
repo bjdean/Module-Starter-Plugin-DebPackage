@@ -5,7 +5,7 @@ use strict;
 
 =head1 NAME
 
-Module::Starter::Plugin::DebPackage - The great new Module::Starter::Plugin::DebPackage!
+Module::Starter::Plugin::DebPackage - Module::Starter plugin which creates debian package config files
 
 =head1 VERSION
 
@@ -15,38 +15,33 @@ Version 0.01
 
 our $VERSION = '0.01';
 
+sub create_distro {
+  my ($self, @args) = @_;
+
+  $self->progress( __PACKAGE__ . "::create_distro IN");
+
+  $self->SUPER::create_distro(@args);
+
+  $self->progress( __PACKAGE__ . "::create_distro OUT");
+
+  return;
+}
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
+  use Module::Starter qw(
+    Module::Starter::Simple
+    Module::Starter::Plugin::DebPackage
+    );
 
-Perhaps a little code snippet.
+  use Module::Starter::App;
+  Module::Starter::App->run;
 
-    use Module::Starter::Plugin::DebPackage;
+=head1 ABSTRACT
 
-    my $foo = Module::Starter::Plugin::DebPackage->new();
-    ...
-
-=head1 EXPORT
-
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
-
-=head1 SUBROUTINES/METHODS
-
-=head2 function1
-
-=cut
-
-sub function1 {
-}
-
-=head2 function2
-
-=cut
-
-sub function2 {
-}
+This is a plugin for L<Module::Starter> that includes a set of skeleton
+debian package configuration files for the new module. Once the Makefile
+is generated the package can be built using C<make deb>.
 
 =head1 AUTHOR
 
@@ -58,15 +53,11 @@ Please report any bugs or feature requests to C<bug-module-starter-plugin-debpac
 the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Module-Starter-Plugin-DebPackage>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
 
-
-
-
 =head1 SUPPORT
 
 You can find documentation for this module with the perldoc command.
 
     perldoc Module::Starter::Plugin::DebPackage
-
 
 You can also look for information at:
 
@@ -90,9 +81,10 @@ L<http://search.cpan.org/dist/Module-Starter-Plugin-DebPackage/>
 
 =back
 
-
 =head1 ACKNOWLEDGEMENTS
 
+Thanks to Andy Lester, Ricardo Signes and C.J. Adams-Collier for
+writing L<Module::Starter>.
 
 =head1 LICENSE AND COPYRIGHT
 
@@ -103,7 +95,6 @@ under the terms of either: the GNU General Public License as published
 by the Free Software Foundation; or the Artistic License.
 
 See http://dev.perl.org/licenses/ for more information.
-
 
 =cut
 

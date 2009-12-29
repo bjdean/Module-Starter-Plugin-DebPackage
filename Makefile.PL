@@ -7,6 +7,8 @@ license  'perl';
 
 build_requires 'Test::More';
 
+install_script  'bin/debmodule-starter';
+
 auto_install;
 
 WriteAll;
