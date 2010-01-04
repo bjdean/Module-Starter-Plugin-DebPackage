@@ -61,6 +61,12 @@ sub create_debian_conf {
   $self->progress("Created ${copyright_file}");
   push @files, $copyright_file;
 
+  # Create the conffiles file
+  my $conffiles_file = File::Spec->catfile( $deb_dir, 'conffiles' );
+  $self->create_file( $conffiles_file, $self->deb_conffiles_guts() );
+  $self->progress("Created ${conffiles_file}");
+  push @files, $conffiles_file;
+
   # Create the rules file
   my $rules_file = File::Spec->catfile( $deb_dir, 'rules' );
   $self->create_file( $rules_file, $self->deb_rules_guts() );
@@ -74,7 +80,7 @@ sub create_debian_conf {
 sub deb_control_guts {
   my ($self) = @_;
 
-return <<"END_CONTROL_GUTS";
+  return <<"END_CONTROL_GUTS";
 Source: $self->{deb_pkg_name}
 Section: perl
 Priority: optional
@@ -97,7 +103,7 @@ END_CONTROL_GUTS
 sub deb_changelog_guts {
   my ($self) = @_;
 
-return <<"END_CHANGELOG_GUTS";
+  return <<"END_CHANGELOG_GUTS";
 $self->{deb_pkg_name} (0.01) unstable; urgency=low
 
   * Initial Release.
@@ -109,7 +115,7 @@ END_CHANGELOG_GUTS
 sub deb_copyright_guts {
   my ($self) = @_;
 
-return <<"END_COPYRIGHT_GUTS";
+  return <<"END_COPYRIGHT_GUTS";
 This is the debian package for the $self->{main_module} module.
 It was created by $self->{author} <$self->{email}> using module-starter
 with the Module::Starter::Plugin::DebPackage plugin.
@@ -131,10 +137,17 @@ is licensed under the same terms as the software itself (see above).
 END_COPYRIGHT_GUTS
 }
 
+sub deb_conffiles_guts {
+  my ($self) = @_;
+
+  # An empty file
+  return '';
+}
+
 sub deb_rules_guts {
   my ($self) = @_;
 
-return <<'END_RULES_GUTS';
+  return <<'END_RULES_GUTS';
 #!/usr/bin/make -f
 # This debian/rules file is provided as a template for normal perl
 # packages. It was created by Marc Brockschmidt <marc@dch-faq.de> for
