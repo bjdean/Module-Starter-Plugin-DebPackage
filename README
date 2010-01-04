@@ -1,16 +1,17 @@
 Module-Starter-Plugin-DebPackage
 
-The README is used to introduce the module and provide instructions on
-how to install the module, any machine dependencies it may have (for
-example C compilers and installed libraries) and any other information
-that should be provided before the module is installed.
+This is a plugin for Module::Starter which creates a preconfigured
+set of debian configuration files (sufficient to be able to build the
+perl module into a debian package).
 
-A README file is required for CPAN modules since CPAN extracts the README
-file from a module distribution so that people browsing the archive
-can use it to get an idea of the module's uses. It is usually a good idea
-to provide version information here so that people can decide whether
-fixes for the module are worth downloading.
+The debian configuration files created are based on the following
+documentation:
 
+  Debian New Maintainers Guide (Chapter 4: Required stuff under debian/)
+  http://www.debian.org/doc/maint-guide/ch-dreq.en.html
+
+  Debian Perl Policy
+  http://www.debian.org/doc/packaging-manuals/perl-policy/
 
 INSTALLATION
 

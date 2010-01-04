@@ -1,7 +1,223 @@
 package Module::Starter::Plugin::DebPackage;
 
+use base 'Module::Starter::Simple';
+
 use warnings;
 use strict;
+
+use version; our $VERSION = qv('0.0.1');
+
+use File::Path qw();
+use File::Spec qw();
+use POSIX qw(strftime);
+
+# Overloaded to create a step after create_modules
+sub create_modules {
+  my ($self, @modules) = @_;
+
+  $self->progress( "Calling SUPER::create_modules" );
+  my @files = $self->SUPER::create_modules(@modules);
+
+  $self->progress( "Calling extra step: create_debian_conf" );
+  push @files, $self->create_debian_conf();
+
+  return @files;
+}
+
+sub create_debian_conf {
+  my ($self) = @_;
+ 
+  my @files = ();
+
+  # Define attributes used for deb conf files
+  $self->{deb_pkg_name} = 'lib'
+                        . lc( $self->{main_module} )
+                        . '-perl';
+  $self->{deb_pkg_name} =~ s/::/-/g;
+
+  my @datestamp = localtime();
+  $self->{deb_datestamp} = strftime( '%a, %d %b %Y %H:%M:%S %z', @datestamp );
+  $self->{deb_year} = strftime( '%Y', @datestamp );
+
+  # Create the debian directory
+  my $deb_dir = File::Spec->catdir( $self->{basedir}, 'debian' );
+  File::Path::mkpath( $deb_dir );
+
+  # Create the control file
+  my $control_file = File::Spec->catfile( $deb_dir, 'control' );
+  $self->create_file( $control_file, $self->deb_control_guts() );
+  $self->progress("Created ${control_file}");
+  push @files, $control_file;
+
+  # Create the changelog file
+  my $changelog_file = File::Spec->catfile( $deb_dir, 'changelog' );
+  $self->create_file( $changelog_file, $self->deb_changelog_guts() );
+  $self->progress("Created ${changelog_file}");
+  push @files, $changelog_file;
+
+  # Create the copyright file
+  my $copyright_file = File::Spec->catfile( $deb_dir, 'copyright' );
+  $self->create_file( $copyright_file, $self->deb_copyright_guts() );
+  $self->progress("Created ${copyright_file}");
+  push @files, $copyright_file;
+
+  # Create the rules file
+  my $rules_file = File::Spec->catfile( $deb_dir, 'rules' );
+  $self->create_file( $rules_file, $self->deb_rules_guts() );
+  chmod 0755, $rules_file;
+  $self->progress("Created ${rules_file}");
+  push @files, $rules_file;
+
+  return @files;
+}
+
+sub deb_control_guts {
+  my ($self) = @_;
+
+return <<"END_CONTROL_GUTS";
+Source: $self->{deb_pkg_name}
+Section: perl
+Priority: optional
+Build-Depends: debhelper (>= 3.0.18)
+Maintainer: $self->{author} <$self->{email}>
+Standards-Version: 3.7.2
+Homepage: http://search.cpan.org/dist/$self->{distro}
+
+Package: $self->{deb_pkg_name}
+Architecture: all
+Depends: \${perl:Depends}
+Description: One-liner description of module
+ One-liner description of module
+ .
+ Describe the module in detail here
+ .
+END_CONTROL_GUTS
+}
+
+sub deb_changelog_guts {
+  my ($self) = @_;
+
+return <<"END_CHANGELOG_GUTS";
+$self->{deb_pkg_name} (0.01) unstable; urgency=low
+
+  * Initial Release.
+
+ -- $self->{author} <$self->{email}>  $self->{deb_datestamp}
+END_CHANGELOG_GUTS
+}
+
+sub deb_copyright_guts {
+  my ($self) = @_;
+
+return <<"END_COPYRIGHT_GUTS";
+This is the debian package for the $self->{main_module} module.
+It was created by $self->{author} <$self->{email}> using module-starter
+with the Module::Starter::Plugin::DebPackage plugin.
+
+It was downloaded from http://search.cpan.org/dist/$self->{distro}
+
+Copyright (C) $self->{deb_year} $self->{author} <$self->{email}>
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of either: the GNU General Public License as published
+by the Free Software Foundation; or the Artistic License.
+
+See http://dev.perl.org/licenses/ for more information.
+
+The author is: $self->{author} <$self->{email}>
+
+The Debian packaging is (C) $self->{deb_year}, $self->{author} <$self->{email}> and
+is licensed under the same terms as the software itself (see above).
+END_COPYRIGHT_GUTS
+}
+
+sub deb_rules_guts {
+  my ($self) = @_;
+
+return <<'END_RULES_GUTS';
+#!/usr/bin/make -f
+# This debian/rules file is provided as a template for normal perl
+# packages. It was created by Marc Brockschmidt <marc@dch-faq.de> for
+# the Debian Perl Group (http://pkg-perl.alioth.debian.org/) but may
+# be used freely wherever it is useful.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# If set to a true value then MakeMaker's prompt function will
+# always return the default without waiting for user input.
+export PERL_MM_USE_DEFAULT=1
+
+PACKAGE=$(shell dh_listpackages)
+
+ifndef PERL
+PERL = /usr/bin/perl
+endif
+
+TMP     =$(CURDIR)/debian/$(PACKAGE)
+
+build: build-stamp
+build-stamp:
+	dh_testdir
+
+	# As this is a architecture independent package, we are not
+	# supposed to install stuff to /usr/lib. MakeMaker creates
+	# the dirs, we prevent this by setting the INSTALLVENDORARCH
+	# and VENDORARCHEXP environment variables.
+
+	# Add commands to compile the package here
+	$(PERL) Makefile.PL INSTALLDIRS=vendor \
+		INSTALLVENDORARCH=/usr/share/perl5/ \
+		VENDORARCHEXP=/usr/share/perl5/
+	$(MAKE)
+	$(MAKE) test
+
+	touch $@
+
+clean:
+	dh_testdir
+	dh_testroot
+
+	dh_clean build-stamp install-stamp
+
+	# Add commands to clean up after the build process here
+	[ ! -f Makefile ] || $(MAKE) realclean
+
+install: install-stamp
+install-stamp: build-stamp
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+
+	# Add commands to install the package into debian/$PACKAGE_NAME here
+	$(MAKE) install DESTDIR=$(TMP) PREFIX=/usr
+
+	touch $@
+
+binary-arch:
+# We have nothing to do here for an architecture-independent package
+
+binary-indep: build install
+	dh_testdir
+	dh_testroot
+	dh_installexamples
+	dh_installdocs README
+	dh_installchangelogs Changes
+	dh_perl
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+source diff:
+	@echo >&2 'source and diff are obsolete - use dpkg-source -b'; false
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary
+END_RULES_GUTS
+}
 
 =head1 NAME
 
@@ -10,22 +226,6 @@ Module::Starter::Plugin::DebPackage - Module::Starter plugin which creates debia
 =head1 VERSION
 
 Version 0.01
-
-=cut
-
-our $VERSION = '0.01';
-
-sub create_distro {
-  my ($self, @args) = @_;
-
-  $self->progress( __PACKAGE__ . "::create_distro IN");
-
-  $self->SUPER::create_distro(@args);
-
-  $self->progress( __PACKAGE__ . "::create_distro OUT");
-
-  return;
-}
 
 =head1 SYNOPSIS
 
