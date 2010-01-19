@@ -1,3 +1,11 @@
+libmodule-starter-plugin-debpackage-perl (0.0.3) hardy; urgency=low
+
+  * Added POD (pod-coverage.t now passes)
+  * Removed TODO from boilerplate.t (as this was done)
+  * Added filters to manifest.t to ignore .git and *.swp files
+
+ -- Bradley Dean <bjdean@bjdean.id.au>  Wed, 20 Jan 2010 08:04:11 +1100
+
 libmodule-starter-plugin-debpackage-perl (0.0.2) hardy; urgency=low
 
   * Added missing Module::Install and dpkg dependencies on module-starter
