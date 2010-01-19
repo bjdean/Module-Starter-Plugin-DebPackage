@@ -1,3 +1,9 @@
+libmodule-starter-plugin-debpackage-perl (0.0.2) hardy; urgency=low
+
+  * Added missing Module::Install and dpkg dependencies on module-starter
+
+ -- Bradley Dean <bjdean@bjdean.id.au>  Wed, 20 Jan 2010 03:20:33 +1100
+
 libmodule-starter-plugin-debpackage-perl (0.0.1) unstable; urgency=low
 
   * Initial Release.
