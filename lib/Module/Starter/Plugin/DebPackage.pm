@@ -43,6 +43,12 @@ sub create_debian_conf {
   my $deb_dir = File::Spec->catdir( $self->{basedir}, 'debian' );
   File::Path::mkpath( $deb_dir );
 
+  # Create the compat file
+  my $compat_file = File::Spec->catfile( $deb_dir, 'compat' );
+  $self->create_file( $compat_file, $self->deb_compat_guts() );
+  $self->progress("Created ${compat_file}");
+  push @files, $compat_file;
+
   # Create the control file
   my $control_file = File::Spec->catfile( $deb_dir, 'control' );
   $self->create_file( $control_file, $self->deb_control_guts() );
@@ -77,6 +83,14 @@ sub create_debian_conf {
   return @files;
 }
 
+sub deb_compat_guts {
+  my ($self) = @_;
+
+  return <<"END_COMPAT_GUTS";
+6
+END_COMPAT_GUTS
+}
+
 sub deb_control_guts {
   my ($self) = @_;
 
@@ -84,14 +98,15 @@ sub deb_control_guts {
 Source: $self->{deb_pkg_name}
 Section: perl
 Priority: optional
-Build-Depends: debhelper (>= 3.0.18)
+Build-Depends: debhelper (>= 6.0.0)
+Build-Depends-Indep: perl
 Maintainer: $self->{author} <$self->{email}>
 Standards-Version: 3.7.2
 Homepage: http://search.cpan.org/dist/$self->{distro}
 
 Package: $self->{deb_pkg_name}
 Architecture: all
-Depends: \${perl:Depends}
+Depends: \${perl:Depends}, \${misc:Depends}
 Description: One-liner description of module
  One-liner description of module
  .
