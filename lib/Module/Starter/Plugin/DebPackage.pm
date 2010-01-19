@@ -271,6 +271,52 @@ This is a plugin for L<Module::Starter> that includes a set of skeleton
 debian package configuration files for the new module. Once the Makefile
 is generated the package can be built using C<make deb>.
 
+=head1 METHODS
+
+=head2 create_modules
+
+This method first executes C<SUPER::create_modules> and then creates
+the debian config files by running C<create_debian_conf>.
+
+=head2 create_debian_conf
+
+Creates the debian config files.
+
+This method is creates, populates (using the C<deb_*_guts> methods) and
+reports progress for all files created by this plugin.
+
+=head2 deb_compat_guts
+
+Generate the contents for the compat file.
+
+The compat version is important because the default version used by debhelper
+is 1 which will generate a incomplete deb.
+
+=head2 deb_control_guts
+
+Generate the contents for the control file.
+
+=head2 deb_changelog_guts
+
+Generate the contents for the changelog file.
+
+=head2 deb_copyright_guts
+
+Generate the contents for the copyright file.
+
+This is the normal perl license used by L<Module::Starter::Simple>.
+
+=head2 deb_conffiles_guts
+
+Generate the contents for the conffiles file.
+
+This is an empty file - add any configuration files that should not be
+overwritten during package updates.
+
+=head2 deb_rules_guts
+
+Generate the contents for the rules file.
+
 =head1 AUTHOR
 
 Bradley Dean, C<< <bjdean at bjdean.id.au> >>
