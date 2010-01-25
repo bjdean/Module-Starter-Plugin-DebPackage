@@ -5,7 +5,7 @@ use base 'Module::Starter::Simple';
 use warnings;
 use strict;
 
-use version; our $VERSION = qv('0.0.3');
+use version; our $VERSION = qv('0.0.4');
 
 use File::Path qw();
 use File::Spec qw();

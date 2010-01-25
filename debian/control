@@ -9,7 +9,7 @@ Homepage: http://search.cpan.org/dist/Module-Starter-Plugin-DebPackage
 
 Package: libmodule-starter-plugin-debpackage-perl
 Architecture: all
-Depends: ${perl:Depends}, ${misc:Depends}, libmodule-starter-perl
+Depends: ${perl:Depends}, ${misc:Depends}, libmodule-starter-perl, libversion-perl
 Description: Module::Starter plugin to create debian packages
  Module::Starter plugin to create debian packages
  .
