@@ -8,7 +8,8 @@ license  'perl';
 requires 'Module::Starter::Simple' => 0
        , 'version' => 0;
 
-build_requires 'Test::More' => 0;
+build_requires 'Test::More' => 0
+             , 'Fatal' => 0;
 
 install_script  'bin/debmodule-starter';
 
